@@ -17,3 +17,4 @@ def main():
 
     start_point = [0, 0]
 
+main()
