@@ -5,8 +5,10 @@
 
 #define	WINDOW_WIDTH 1205
 #define WINDOW_HEIGHT 550
-#define FPS 25
+#define FPS 500
 
+int start[2] = {0,100};
+int end[2] = {50,0};
 
 int tf = 1, p = 0;
 int counter;
@@ -15,6 +17,7 @@ pthread_mutex_t pause,save_exit;
 
 int points[12][5];
 int nests[12][50][2];
+int directions[12][50];
 unsigned char fields[12][100][100];
 int generation = 0;
 
@@ -32,14 +35,14 @@ void display(){
 		glVertex2f(-600,225);
 		glVertex2f(605,225);
 		//comecar -23
-		glVertex2f(-600,176);
-		glVertex2f(605,176);
+		glVertex2f(-600,179);
+		glVertex2f(605,179);
 
 		glVertex2f(-600,-25);
 		glVertex2f(605,-25);
 		//comecar -274
-		glVertex2f(-600,-75);
-		glVertex2f(605,-75);
+		glVertex2f(-600,-72);
+		glVertex2f(605,-72);
 		//comecar -599
 		glVertex2f(-399,-275);
 		glVertex2f(-399,225);
@@ -125,7 +128,7 @@ void display(){
 	writeText(416,-60,fitness,12);
 */
 	glPointSize(2);
-	glColor3f(0,1,0);
+	glColor3f(0,0,1);
 	glBegin(GL_POINTS);
 	for(int i = 0; i <100;i++){
 		for(int j = 0; j < 100;j++){
@@ -157,6 +160,37 @@ void display(){
 	}
 	glEnd();
 	glPointSize(3);
+	glColor3f(0.545,0.2705,0.0745);
+	glBegin(GL_POINTS);
+		glVertex2f(2*start[0]-599,2*start[1]-23);
+		glVertex2f(2*start[0]-398,2*start[1]-23);
+		glVertex2f(2*start[0]-197,2*start[1]-23);
+		glVertex2f(2*start[0]+4,2*start[1]-23);
+		glVertex2f(2*start[0]+205,2*start[1]-23);
+		glVertex2f(2*start[0]+406,2*start[1]-23);
+		glVertex2f(2*start[0]-599,2*start[1]-274);
+		glVertex2f(2*start[0]-398,2*start[1]-274);
+		glVertex2f(2*start[0]-197,2*start[1]-274);
+		glVertex2f(2*start[0]+4,2*start[1]-274);
+		glVertex2f(2*start[0]+205,2*start[1]-274);
+		glVertex2f(2*start[0]+406,2*start[1]-274);
+	glEnd();
+	glColor3f(0.72,0.8353,0.1333);
+	glBegin(GL_POINTS);
+		glVertex2f(2*end[0]-599,2*end[1]-23);
+		glVertex2f(2*end[0]-398,2*end[1]-23);
+		glVertex2f(2*end[0]-197,2*end[1]-23);
+		glVertex2f(2*end[0]+4,2*end[1]-23);
+		glVertex2f(2*end[0]+205,2*end[1]-23);
+		glVertex2f(2*end[0]+406,2*end[1]-23);
+		glVertex2f(2*end[0]-599,2*end[1]-274);
+		glVertex2f(2*end[0]-398,2*end[1]-274);
+		glVertex2f(2*end[0]-197,2*end[1]-274);
+		glVertex2f(2*end[0]+4,2*end[1]-274);
+		glVertex2f(2*end[0]+205,2*end[1]-274);
+		glVertex2f(2*end[0]+206,2*end[1]-274);
+
+	glEnd();
 
 	glColor3f(1,0,0);
 	glBegin(GL_POINTS);
