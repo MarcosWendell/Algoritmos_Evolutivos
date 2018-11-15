@@ -13,7 +13,7 @@ int counter;
 
 pthread_mutex_t pause,save_exit;
 
-int points[12];
+int points[12][5];
 int nests[12][50][2];
 unsigned char fields[12][100][100];
 int generation = 0;
@@ -62,7 +62,7 @@ void display(){
 	char fitness[] = {'f','i','t','n','e','s','s',':',' ','0','0','0','\0'};
 
 	writeText(-590,255,texto,12);
-	writeText(-590,210,"ninho 1",7);
+/*	writeText(-590,210,"ninho 1",7);
 	fitness[10] = '0'+((points[0]/100)%10);
 	fitness[11] = '0'+((points[0]/10)%10);
 	fitness[12] = '0'+(points[0] % 10);
@@ -123,7 +123,7 @@ void display(){
 	fitness[11] = '0'+((points[0]/10)%10);
 	fitness[12] = '0'+(points[0] % 10);
 	writeText(416,-60,fitness,12);
-
+*/
 	glPointSize(2);
 	glColor3f(0,1,0);
 	glBegin(GL_POINTS);
