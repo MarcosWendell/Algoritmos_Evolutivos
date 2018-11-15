@@ -7,13 +7,14 @@
 #define WINDOW_HEIGHT 550
 #define FPS 500
 
+pthread_t evaluation[12];
 int start[2] = {0,100};
 int end[2] = {50,0};
 
 int tf = 1, p = 0;
 int counter;
 
-pthread_mutex_t pause,save_exit;
+pthread_mutex_t paused,save_exit;
 
 int points[12][5];
 int nests[12][50][2];
@@ -65,68 +66,68 @@ void display(){
 	char fitness[] = {'f','i','t','n','e','s','s',':',' ','0','0','0','\0'};
 
 	writeText(-590,255,texto,12);
-/*	writeText(-590,210,"ninho 1",7);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	writeText(-590,210,"ninho 1",7);
+	fitness[10] = '0'+((points[0][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[0][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[0][generation % 5] % 10);
 	writeText(-590,190,fitness,12);
 	writeText(-388,210,"ninho 2",7);
-	fitness[10] = '0'+((points[1]/100)%10);
-	fitness[11] = '0'+((points[1]/10)%10);
-	fitness[12] = '0'+(points[1] % 10);
+	fitness[10] = '0'+((points[1][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[1][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[1][generation % 5] % 10);
 	writeText(-388,190,fitness,12);
 	writeText(-187,210,"ninho 3",7);
-	fitness[10] = '0'+((points[2]/100)%10);
-	fitness[11] = '0'+((points[2]/10)%10);
-	fitness[12] = '0'+(points[2] % 10);
+	fitness[10] = '0'+((points[2][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[2][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[2][generation % 5] % 10);
 	writeText(-187,190,fitness,12);
 	writeText(14,210,"ninho 4",7);
-	fitness[10] = '0'+((points[3]/100)%10);
-	fitness[11] = '0'+((points[3]/10)%10);
-	fitness[12] = '0'+(points[3] % 10);
+	fitness[10] = '0'+((points[3][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[3][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[3][generation % 5] % 10);
 	writeText(14,190,fitness,12);
 	writeText(215,210,"ninho 5",7);
-	fitness[10] = '0'+((points[4]/100)%10);
-	fitness[11] = '0'+((points[4]/10)%10);
-	fitness[12] = '0'+(points[4] % 10);
+	fitness[10] = '0'+((points[4][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[4][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[4][generation % 5] % 10);
 	writeText(215,190,fitness,12);
 	writeText(416,210,"ninho 6",7);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[5][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[5][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[5][generation % 5] % 10);
 	writeText(416,190,fitness,12);
 
 	writeText(-590,-40,"ninho 7",7);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[6][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[6][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[6][generation % 5] % 10);
 	writeText(-590,-60,fitness,12);
 	writeText(-388,-40,"ninho 8",7);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[7][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[7][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[7][generation % 5] % 10);
 	writeText(-388,-60,fitness,12);
 	writeText(-187,-40,"ninho 9",7);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[8][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[8][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[8][generation % 5] % 10);
 	writeText(-187,-60,fitness,12);
 	writeText(14,-40,"ninho 10",8);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[9][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[9][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[9][generation % 5] % 10);
 	writeText(14,-60,fitness,12);
 	writeText(215,-40,"ninho 11",8);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[10][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[10][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[10][generation % 5] % 10);
 	writeText(215,-60,fitness,12);
 	writeText(416,-40,"ninho 12",8);
-	fitness[10] = '0'+((points[0]/100)%10);
-	fitness[11] = '0'+((points[0]/10)%10);
-	fitness[12] = '0'+(points[0] % 10);
+	fitness[10] = '0'+((points[11][generation % 5]/100)%10);
+	fitness[11] = '0'+((points[11][generation % 5]/10)%10);
+	fitness[12] = '0'+(points[11][generation % 5] % 10);
 	writeText(416,-60,fitness,12);
-*/
+
 	glPointSize(2);
 	glColor3f(0,0,1);
 	glBegin(GL_POINTS);
@@ -229,12 +230,15 @@ void keyboard(unsigned char key, int x, int y){
 	}else if(key == 'p'){
 			p = !p;
 			if(p == 1)
-				pthread_mutex_lock(&pause);
+				pthread_mutex_lock(&paused);
 			else
-				pthread_mutex_unlock(&pause);
+				pthread_mutex_unlock(&paused);
 	}else if(key == 'q'){
 		pthread_mutex_lock(&save_exit);
-		pthread_mutex_unlock(&pause);
+		for(int i = 0; i < 12; i++)
+			pthread_cancel(evaluation[i]);
+
+		pthread_mutex_unlock(&paused);
 	}
 }
 

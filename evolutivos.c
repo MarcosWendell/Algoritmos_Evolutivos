@@ -3,6 +3,7 @@
 #include<time.h>
 #include<pthread.h>
 #include<errno.h>
+#include<unistd.h>
 #include"ui.c"
 
 struct dna{
@@ -14,7 +15,6 @@ struct dna{
 #define TRUE 1
 
 struct dna dnas[12];
-pthread_t evaluation[12];
 
 int mutation = 0.05;
 int best = 0;
@@ -22,8 +22,8 @@ int best = 0;
 void initPop(){
 	for(int i = 0;i < 12; i++){
 		dnas[i].antena = rand() % 256;
-		dnas[i].pheromone = 0;
-		dnas[i].max = 0;
+		dnas[i].pheromone = rand() %255;
+		dnas[i].max = rand() %255;
 	}
 }
 
@@ -72,7 +72,7 @@ void walk(int nest, int ant){
 			if(y < 99){
 				if(pheromoneEsq > pheromoneDir)
 					directions[nest][ant] = 1;
-				else
+				else if(pheromoneEsq < pheromoneDir)
 					directions[nest][ant] = 3;
 				nests[nest][ant][1] = y + 1;
 			}else{
@@ -113,10 +113,11 @@ void walk(int nest, int ant){
 			if(((dnas[nest].antena<<7) & 1) && x < 98 && y >=2)
 				pheromoneDir += fields[nest][x+2][y-2];
 
+				directions[nest][ant] = 2;
 			if(x < 99){
 				if(pheromoneEsq > pheromoneDir)
 					directions[nest][ant] = 2;
-				else
+				else if(pheromoneEsq < pheromoneDir)
 					directions[nest][ant] = 0;
 				nests[nest][ant][0] = x + 1;
 			}else{
@@ -160,7 +161,7 @@ void walk(int nest, int ant){
 			if(y > 0){
 				if(pheromoneEsq > pheromoneDir)
 					directions[nest][ant] = 3;
-				else
+				else if(pheromoneEsq < pheromoneDir)
 					directions[nest][ant] = 1;
 				nests[nest][ant][1] = y - 1;
 			}else{
@@ -204,7 +205,7 @@ void walk(int nest, int ant){
 			if(x > 0){
 				if(pheromoneEsq > pheromoneDir)
 					directions[nest][ant] = 0;
-				else
+				else if(pheromoneEsq < pheromoneDir)
 					directions[nest][ant] = 2;
 				nests[nest][ant][0] = x - 1;
 			}else{
@@ -232,10 +233,13 @@ void *evaluate(void *arg){
 			if(nests[id][i][0] == end[0] && nests[id][i][1] == end[1])
 				not_reach = 0;
 		}
+		usleep(50000);
 		fitness++;
 		for(int i = 0; i < 100; i++)
-			for(int j = 0; j < 100; j++)
-				fields[id][i][j] = (fields[id][i][j] - 1 ) % 255;
+			for(int j = 0; j < 100; j++){
+				unsigned char aux = fields[id][i][j] - 1;
+				fields[id][i][j] = aux % 255;
+			}
 	}
 	points[id][generation % 5] = fitness;
 }
@@ -291,16 +295,16 @@ int main(int argc, char *argv[]){
 	counter = argc;
   FILE *file = fopen("output.txt","w");
 	pthread_t ui;
-	pthread_mutex_init(&pause,NULL);
+	pthread_mutex_init(&paused,NULL);
 	pthread_mutex_init(&save_exit,NULL);
 	int args[12] ={0,1,2,3,4,5,6,7,8,9,10,11};
 
   printf("Commands:\ng-Activate/Deactivate Interface\np-Pause/Unpause\nq-Save And Exit\n");
 	srand(time(NULL));
-	pthread_create(&ui,NULL,UI,argv);
 
+	pthread_create(&ui,NULL,UI,argv);
+	
   initPop();
-	printOutput(file);
 	while(TRUE){
     for(int i = 0; i < 12; i++)
       pthread_create(&evaluation[i],NULL,evaluate,&args[i]);
@@ -309,8 +313,8 @@ int main(int argc, char *argv[]){
     selection();
     printOutput(file);
     reproduct();
-		pthread_mutex_lock(&pause);
-		pthread_mutex_unlock(&pause);
+		pthread_mutex_lock(&paused);
+		pthread_mutex_unlock(&paused);
 		int e = pthread_mutex_trylock(&save_exit);
 		if(e == EBUSY){
 			break;
