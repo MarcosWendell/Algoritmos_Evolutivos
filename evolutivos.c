@@ -27,17 +27,24 @@ struct dna dnas[12];
 int generationsWithoutChange = 0, invert = 0;
 float mutation = MUTATION;
 char canReproduct[12];
+char evolveDna[5] = {1,1,1,1,1};
 
 struct dna theBestDna;
 int theBest = INT_MAX;
 
 void initPop(int id){
+	if(evolveDna[0]){
 		dnas[id].antena1 = rand() % 256;
 		dnas[id].antena2 = rand() % 256;
-		dnas[id].pheromone = rand() % 100;
+	}
+	if(evolveDna[1])
+		dnas[id].pheromone = rand() % 101;
+	if(evolveDna[2])
 		dnas[id].max = rand() % 255;
-		dnas[id].ignoreChance = rand() % 100;
-		dnas[id].turnChance = rand() % 100;
+	if(evolveDna[3])
+		dnas[id].ignoreChance = rand() % 101;
+	if(evolveDna[4])
+		dnas[id].turnChance = rand() % 101;
 }
 
 void walk(int nest, int ant){
@@ -47,221 +54,217 @@ void walk(int nest, int ant){
 	if(aux > dnas[nest].max)
 		aux = dnas[nest].max;
 	fields[nest][x][y] = aux;
-	switch(directions[nest][ant]){
-		case 0:
-			if((dnas[nest].antena1 & 1) && x >= 1)
-				pheromoneEsq += fields[nest][x-1][y];
-			if((dnas[nest].antena2 & 1) && x < 99)
-				pheromoneDir += fields[nest][x+1][y];
-			if(((dnas[nest].antena1<<1) & 1) && x >= 2)
-				pheromoneEsq += fields[nest][x-2][y];
-			if(((dnas[nest].antena2<<1) & 1) && x < 98)
-				pheromoneDir += fields[nest][x+2][y];
-			if(((dnas[nest].antena1<<2) & 1) && x >= 3)
-				pheromoneEsq += fields[nest][x-3][y];
-			if(((dnas[nest].antena2<<2) & 1) && x < 97)
-				pheromoneDir += fields[nest][x+3][y];
-			if(((dnas[nest].antena1<<3) & 1) && x >= 1 && y < 99)
-				pheromoneEsq += fields[nest][x-1][y+1];
-			if(((dnas[nest].antena2<<3) & 1) && x < 99 && y < 99)
-				pheromoneDir += fields[nest][x+1][y+1];
-			if(((dnas[nest].antena1<<4) & 1) && x >= 2 && y < 99)
-				pheromoneEsq += fields[nest][x-2][y+1];
-			if(((dnas[nest].antena2<<4) & 1) && x < 98 && y < 99)
-				pheromoneDir += fields[nest][x+2][y+1];
-			if(((dnas[nest].antena1<<5) & 1) && x >= 3 && y < 99)
-				pheromoneEsq += fields[nest][x-3][y+1];
-			if(((dnas[nest].antena2<<5) & 1) && x < 97 && y < 99)
-				pheromoneDir += fields[nest][x+3][y+1];
-			if(((dnas[nest].antena1<<6) & 1) && x >= 1 && y < 98)
-				pheromoneEsq += fields[nest][x-1][y+2];
-			if(((dnas[nest].antena2<<6) & 1) && x < 99 && y < 98)
-				pheromoneDir += fields[nest][x+1][y+2];
-			if(((dnas[nest].antena1<<7) & 1) && x >= 2 && y < 98)
-				pheromoneEsq += fields[nest][x-2][y+2];
-			if(((dnas[nest].antena2<<7) & 1) && x < 98 && y < 98)
-				pheromoneDir += fields[nest][x+2][y+2];
+	if(rand() % 101 > dnas[nest].ignoreChance){
+		directions[nest][ant] = rand() % 4;
+	}else{
+		switch(directions[nest][ant]){
+			case 0:
+				if((dnas[nest].antena1 & 1) && x >= 1)
+					pheromoneEsq += fields[nest][x-1][y];
+				if((dnas[nest].antena2 & 1) && x < 99)
+					pheromoneDir += fields[nest][x+1][y];
+				if(((dnas[nest].antena1<<1) & 1) && x >= 2)
+					pheromoneEsq += fields[nest][x-2][y];
+				if(((dnas[nest].antena2<<1) & 1) && x < 98)
+					pheromoneDir += fields[nest][x+2][y];
+				if(((dnas[nest].antena1<<2) & 1) && x >= 3)
+					pheromoneEsq += fields[nest][x-3][y];
+				if(((dnas[nest].antena2<<2) & 1) && x < 97)
+					pheromoneDir += fields[nest][x+3][y];
+				if(((dnas[nest].antena1<<3) & 1) && x >= 1 && y < 99)
+					pheromoneEsq += fields[nest][x-1][y+1];
+				if(((dnas[nest].antena2<<3) & 1) && x < 99 && y < 99)
+					pheromoneDir += fields[nest][x+1][y+1];
+				if(((dnas[nest].antena1<<4) & 1) && x >= 2 && y < 99)
+					pheromoneEsq += fields[nest][x-2][y+1];
+				if(((dnas[nest].antena2<<4) & 1) && x < 98 && y < 99)
+					pheromoneDir += fields[nest][x+2][y+1];
+				if(((dnas[nest].antena1<<5) & 1) && x >= 3 && y < 99)
+					pheromoneEsq += fields[nest][x-3][y+1];
+				if(((dnas[nest].antena2<<5) & 1) && x < 97 && y < 99)
+					pheromoneDir += fields[nest][x+3][y+1];
+				if(((dnas[nest].antena1<<6) & 1) && x >= 1 && y < 98)
+					pheromoneEsq += fields[nest][x-1][y+2];
+				if(((dnas[nest].antena2<<6) & 1) && x < 99 && y < 98)
+					pheromoneDir += fields[nest][x+1][y+2];
+				if(((dnas[nest].antena1<<7) & 1) && x >= 2 && y < 98)
+					pheromoneEsq += fields[nest][x-2][y+2];
+				if(((dnas[nest].antena2<<7) & 1) && x < 98 && y < 98)
+					pheromoneDir += fields[nest][x+2][y+2];
 
-			if(rand() % 100 > dnas[nest].ignoreChance){
-				directions[nest][ant] = rand() % 4;
-			}if(y < 99){
-				if(pheromoneEsq > pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-						directions[nest][ant] = 1;
-				else if(pheromoneEsq < pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-						directions[nest][ant] = 3;
-				nests[nest][ant][1] = y + 1;
-			}else{
-				if(rand() % 100 > dnas[nest].turnChance){
-						if(rand() % 2)
+				if(y < 99){
+					if(pheromoneEsq > pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
 							directions[nest][ant] = 1;
-						else
+					else if(pheromoneEsq < pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
 							directions[nest][ant] = 3;
-				}else if(rand() % 100 > dnas[nest].ignoreChance){
-					directions[nest][ant] = rand() % 4;
-				}else
-					directions[nest][ant] = 2;
-			}
-		break;
-		case 1:
-			if((dnas[nest].antena1 & 1) && y < 99)
-				pheromoneEsq += fields[nest][x][y+1];
-			if((dnas[nest].antena2 & 1) && y >=1)
-				pheromoneDir += fields[nest][x][y-1];
-			if(((dnas[nest].antena1<<1) & 1) && y < 98)
-				pheromoneEsq += fields[nest][x][y+2];
-			if(((dnas[nest].antena2<<1) & 1) && y >= 2)
-				pheromoneDir += fields[nest][x][y-2];
-			if(((dnas[nest].antena1<<2) & 1) && y < 97)
-				pheromoneEsq += fields[nest][x][y+3];
-			if(((dnas[nest].antena2<<2) & 1) && y>=3)
-				pheromoneDir += fields[nest][x][y-3];
-			if(((dnas[nest].antena1<<3) & 1) && x <99 && y <99)
-				pheromoneEsq += fields[nest][x+1][y+1];
-			if(((dnas[nest].antena2<<3) & 1) && x < 99 && y >=1)
-				pheromoneDir += fields[nest][x+1][y-1];
-			if(((dnas[nest].antena1<<4) & 1) && x <99 && y < 98)
-				pheromoneEsq += fields[nest][x+1][y+2];
-			if(((dnas[nest].antena2<<4) & 1) && x < 99 && y >=2)
-				pheromoneDir += fields[nest][x+1][y-2];
-			if(((dnas[nest].antena1<<5) & 1) && x <99 && y < 97)
-				pheromoneEsq += fields[nest][x+1][y+3];
-			if(((dnas[nest].antena2<<5) & 1) && x < 99 && y >=3)
-				pheromoneDir += fields[nest][x+1][y-3];
-			if(((dnas[nest].antena1<<6) & 1) && x <98 && y < 99)
-				pheromoneEsq += fields[nest][x+2][y+1];
-			if(((dnas[nest].antena2<<6) & 1) && x < 98 && y >=1)
-				pheromoneDir += fields[nest][x+2][y-1];
-			if(((dnas[nest].antena1<<7) & 1) && x <98 && y < 98)
-				pheromoneEsq += fields[nest][x+2][y+2];
-			if(((dnas[nest].antena2<<7) & 1) && x < 98 && y >=2)
-				pheromoneDir += fields[nest][x+2][y-2];
-
-			if(rand() % 100 > dnas[nest].ignoreChance){
-				directions[nest][ant] = rand() % 4;
-			}if(x < 99){
-				if(pheromoneEsq > pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-					directions[nest][ant] = 2;
-				else if(pheromoneEsq < pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-					directions[nest][ant] = 0;
-				nests[nest][ant][0] = x + 1;
-			}else{
-				if(rand() % 100 > dnas[nest].turnChance){
-					if(rand() % 2)
+					nests[nest][ant][1] = y + 1;
+				}else{
+					if(rand() % 101 > dnas[nest].turnChance){
+							if(rand() % 2)
+								directions[nest][ant] = 1;
+							else
+								directions[nest][ant] = 3;
+					}else if(rand() % 101 > dnas[nest].ignoreChance){
+						directions[nest][ant] = rand() % 4;
+					}else
 						directions[nest][ant] = 2;
-					else
-						directions[nest][ant] = 0;
-				}else if(rand() % 100 > dnas[nest].ignoreChance){
-					directions[nest][ant] = rand() % 4;
-				}else
-					directions[nest][ant] = 3;
-			}
-		break;
-		case 2:
-			if((dnas[nest].antena1 & 1) && x < 99)
-				pheromoneEsq += fields[nest][x+1][y];
-			if((dnas[nest].antena2 & 1) && x >=1)
-				pheromoneDir += fields[nest][x-1][y];
-			if(((dnas[nest].antena1<<1) & 1) && x < 98)
-				pheromoneEsq += fields[nest][x+2][y];
-			if(((dnas[nest].antena2<<1) & 1) && x >=2)
-				pheromoneDir += fields[nest][x-2][y];
-			if(((dnas[nest].antena1<<2) & 1) && x <97)
-				pheromoneEsq += fields[nest][x+3][y];
-			if(((dnas[nest].antena2<<2) & 1) && x >=3)
-				pheromoneDir += fields[nest][x-3][y];
-			if(((dnas[nest].antena1<<3) & 1) && x <99 && y >=1)
-				pheromoneEsq += fields[nest][x+1][y-1];
-			if(((dnas[nest].antena2<<3) & 1) && x >=1 && y >=1)
-				pheromoneDir += fields[nest][x-1][y-1];
-			if(((dnas[nest].antena1<<4) & 1) && x <98 && y>=1)
-				pheromoneEsq += fields[nest][x+2][y-1];
-			if(((dnas[nest].antena2<<4) & 1) && x >=2 && y >=1)
-				pheromoneDir += fields[nest][x-2][y-1];
-			if(((dnas[nest].antena1<<5) & 1) && x <97 && y >=1)
-				pheromoneEsq += fields[nest][x+3][y-1];
-			if(((dnas[nest].antena2<<5) & 1) && x >=3 && y >=1)
-				pheromoneDir += fields[nest][x-3][y-1];
-			if(((dnas[nest].antena1<<6) & 1) && x <99 && y >=2)
-				pheromoneEsq += fields[nest][x+1][y-2];
-			if(((dnas[nest].antena2<<6) & 1) && x >=1 && y >=2)
-				pheromoneDir += fields[nest][x-1][y-2];
-			if(((dnas[nest].antena1<<7) & 1) && x <98 && y >=2)
-				pheromoneEsq += fields[nest][x+2][y-2];
-			if(((dnas[nest].antena2<<7) & 1) && x >=2 && y >=2)
-				pheromoneDir += fields[nest][x-2][y-2];
+				}
+			break;
+			case 1:
+				if((dnas[nest].antena1 & 1) && y < 99)
+					pheromoneEsq += fields[nest][x][y+1];
+				if((dnas[nest].antena2 & 1) && y >=1)
+					pheromoneDir += fields[nest][x][y-1];
+				if(((dnas[nest].antena1<<1) & 1) && y < 98)
+					pheromoneEsq += fields[nest][x][y+2];
+				if(((dnas[nest].antena2<<1) & 1) && y >= 2)
+					pheromoneDir += fields[nest][x][y-2];
+				if(((dnas[nest].antena1<<2) & 1) && y < 97)
+					pheromoneEsq += fields[nest][x][y+3];
+				if(((dnas[nest].antena2<<2) & 1) && y>=3)
+					pheromoneDir += fields[nest][x][y-3];
+				if(((dnas[nest].antena1<<3) & 1) && x <99 && y <99)
+					pheromoneEsq += fields[nest][x+1][y+1];
+				if(((dnas[nest].antena2<<3) & 1) && x < 99 && y >=1)
+					pheromoneDir += fields[nest][x+1][y-1];
+				if(((dnas[nest].antena1<<4) & 1) && x <99 && y < 98)
+					pheromoneEsq += fields[nest][x+1][y+2];
+				if(((dnas[nest].antena2<<4) & 1) && x < 99 && y >=2)
+					pheromoneDir += fields[nest][x+1][y-2];
+				if(((dnas[nest].antena1<<5) & 1) && x <99 && y < 97)
+					pheromoneEsq += fields[nest][x+1][y+3];
+				if(((dnas[nest].antena2<<5) & 1) && x < 99 && y >=3)
+					pheromoneDir += fields[nest][x+1][y-3];
+				if(((dnas[nest].antena1<<6) & 1) && x <98 && y < 99)
+					pheromoneEsq += fields[nest][x+2][y+1];
+				if(((dnas[nest].antena2<<6) & 1) && x < 98 && y >=1)
+					pheromoneDir += fields[nest][x+2][y-1];
+				if(((dnas[nest].antena1<<7) & 1) && x <98 && y < 98)
+					pheromoneEsq += fields[nest][x+2][y+2];
+				if(((dnas[nest].antena2<<7) & 1) && x < 98 && y >=2)
+					pheromoneDir += fields[nest][x+2][y-2];
 
-			if(rand() % 100 > dnas[nest].ignoreChance){
-				directions[nest][ant] = rand() % 4;
-			}if(y > 0){
-				if(pheromoneEsq > pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-					directions[nest][ant] = 3;
-				else if(pheromoneEsq < pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-					directions[nest][ant] = 1;
-				nests[nest][ant][1] = y - 1;
-			}else{
-				if(rand() % 100 > dnas[nest].turnChance){
-					if(rand() % 2)
+				if(x < 99){
+					if(pheromoneEsq > pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
+						directions[nest][ant] = 2;
+					else if(pheromoneEsq < pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
+						directions[nest][ant] = 0;
+					nests[nest][ant][0] = x + 1;
+				}else{
+					if(rand() % 101 > dnas[nest].turnChance){
+						if(rand() % 2)
+							directions[nest][ant] = 2;
+						else
+							directions[nest][ant] = 0;
+					}else if(rand() % 101 > dnas[nest].ignoreChance){
+						directions[nest][ant] = rand() % 4;
+					}else
 						directions[nest][ant] = 3;
-					else
-						directions[nest][ant] = 1;
-				}else if(rand() % 100 > dnas[nest].ignoreChance){
-					directions[nest][ant] = rand() % 4;
-				}else
-					directions[nest][ant] = 0;
-			}
-		break;
-		case 3:
-			if((dnas[nest].antena1 & 1) && y >=1)
-				pheromoneEsq += fields[nest][x][y-1];
-			if((dnas[nest].antena2 & 1) && y <99)
-				pheromoneDir += fields[nest][x][y+1];
-			if(((dnas[nest].antena1<<1) & 1) && y >=2)
-				pheromoneEsq += fields[nest][x][y-2];
-			if(((dnas[nest].antena2<<1) & 1) && y <98)
-				pheromoneDir += fields[nest][x][y+2];
-			if(((dnas[nest].antena1<<2) & 1) && y >=3)
-				pheromoneEsq += fields[nest][x][y-3];
-			if(((dnas[nest].antena2<<2) & 1) && y<97)
-				pheromoneDir += fields[nest][x][y+3];
-			if(((dnas[nest].antena1<<3) & 1) && x >=1 && y >=1)
-				pheromoneEsq += fields[nest][x-1][y-1];
-			if(((dnas[nest].antena2<<3) & 1) && x >=1 && y <99)
-				pheromoneDir += fields[nest][x-1][y+1];
-			if(((dnas[nest].antena1<<4) & 1) && x >=1 && y >=2)
-				pheromoneEsq += fields[nest][x-1][y-2];
-			if(((dnas[nest].antena2<<4) & 1) && x >=1 && y < 98)
-				pheromoneDir += fields[nest][x-1][y+2];
-			if(((dnas[nest].antena1<<5) & 1) && x >=1 && y >=3)
-				pheromoneEsq += fields[nest][x-1][y-3];
-			if(((dnas[nest].antena2<<5) & 1) && x >=1 && y <97)
-				pheromoneDir += fields[nest][x-1][y+3];
-			if(((dnas[nest].antena1<<6) & 1) && x >=2 && y >=1)
-				pheromoneEsq += fields[nest][x-2][y-1];
-			if(((dnas[nest].antena2<<6) & 1) && x >=2 && y < 99)
-				pheromoneDir += fields[nest][x-2][y+1];
-			if(((dnas[nest].antena1<<7) & 1) && x >=2 && y >=2)
-				pheromoneEsq += fields[nest][x-2][y-2];
-			if(((dnas[nest].antena2<<7) & 1) && x >=2 && y <98)
-				pheromoneDir += fields[nest][x-2][y+2];
+				}
+			break;
+			case 2:
+				if((dnas[nest].antena1 & 1) && x < 99)
+					pheromoneEsq += fields[nest][x+1][y];
+				if((dnas[nest].antena2 & 1) && x >=1)
+					pheromoneDir += fields[nest][x-1][y];
+				if(((dnas[nest].antena1<<1) & 1) && x < 98)
+					pheromoneEsq += fields[nest][x+2][y];
+				if(((dnas[nest].antena2<<1) & 1) && x >=2)
+					pheromoneDir += fields[nest][x-2][y];
+				if(((dnas[nest].antena1<<2) & 1) && x <97)
+					pheromoneEsq += fields[nest][x+3][y];
+				if(((dnas[nest].antena2<<2) & 1) && x >=3)
+					pheromoneDir += fields[nest][x-3][y];
+				if(((dnas[nest].antena1<<3) & 1) && x <99 && y >=1)
+					pheromoneEsq += fields[nest][x+1][y-1];
+				if(((dnas[nest].antena2<<3) & 1) && x >=1 && y >=1)
+					pheromoneDir += fields[nest][x-1][y-1];
+				if(((dnas[nest].antena1<<4) & 1) && x <98 && y>=1)
+					pheromoneEsq += fields[nest][x+2][y-1];
+				if(((dnas[nest].antena2<<4) & 1) && x >=2 && y >=1)
+					pheromoneDir += fields[nest][x-2][y-1];
+				if(((dnas[nest].antena1<<5) & 1) && x <97 && y >=1)
+					pheromoneEsq += fields[nest][x+3][y-1];
+				if(((dnas[nest].antena2<<5) & 1) && x >=3 && y >=1)
+					pheromoneDir += fields[nest][x-3][y-1];
+				if(((dnas[nest].antena1<<6) & 1) && x <99 && y >=2)
+					pheromoneEsq += fields[nest][x+1][y-2];
+				if(((dnas[nest].antena2<<6) & 1) && x >=1 && y >=2)
+					pheromoneDir += fields[nest][x-1][y-2];
+				if(((dnas[nest].antena1<<7) & 1) && x <98 && y >=2)
+					pheromoneEsq += fields[nest][x+2][y-2];
+				if(((dnas[nest].antena2<<7) & 1) && x >=2 && y >=2)
+					pheromoneDir += fields[nest][x-2][y-2];
 
-			if(rand() % 100 > dnas[nest].ignoreChance){
-				directions[nest][ant] = rand() % 4;
-			}if(x > 0){
-				if(pheromoneEsq > pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-					directions[nest][ant] = 0;
-				else if(pheromoneEsq < pheromoneDir && rand() % 100 > dnas[nest].ignoreChance)
-					directions[nest][ant] = 2;
-				nests[nest][ant][0] = x - 1;
-			}else{
-				if(rand() % 100 > dnas[nest].turnChance){
-					if(rand() % 2)
+				if(y > 0){
+					if(pheromoneEsq > pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
+						directions[nest][ant] = 3;
+					else if(pheromoneEsq < pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
+						directions[nest][ant] = 1;
+					nests[nest][ant][1] = y - 1;
+				}else{
+					if(rand() % 101 > dnas[nest].turnChance){
+						if(rand() % 2)
+							directions[nest][ant] = 3;
+						else
+							directions[nest][ant] = 1;
+					}else if(rand() % 101 > dnas[nest].ignoreChance){
+						directions[nest][ant] = rand() % 4;
+					}else
 						directions[nest][ant] = 0;
-					else
+				}
+			break;
+			case 3:
+				if((dnas[nest].antena1 & 1) && y >=1)
+					pheromoneEsq += fields[nest][x][y-1];
+				if((dnas[nest].antena2 & 1) && y <99)
+					pheromoneDir += fields[nest][x][y+1];
+				if(((dnas[nest].antena1<<1) & 1) && y >=2)
+					pheromoneEsq += fields[nest][x][y-2];
+				if(((dnas[nest].antena2<<1) & 1) && y <98)
+					pheromoneDir += fields[nest][x][y+2];
+				if(((dnas[nest].antena1<<2) & 1) && y >=3)
+					pheromoneEsq += fields[nest][x][y-3];
+				if(((dnas[nest].antena2<<2) & 1) && y<97)
+					pheromoneDir += fields[nest][x][y+3];
+				if(((dnas[nest].antena1<<3) & 1) && x >=1 && y >=1)
+					pheromoneEsq += fields[nest][x-1][y-1];
+				if(((dnas[nest].antena2<<3) & 1) && x >=1 && y <99)
+					pheromoneDir += fields[nest][x-1][y+1];
+				if(((dnas[nest].antena1<<4) & 1) && x >=1 && y >=2)
+					pheromoneEsq += fields[nest][x-1][y-2];
+				if(((dnas[nest].antena2<<4) & 1) && x >=1 && y < 98)
+					pheromoneDir += fields[nest][x-1][y+2];
+				if(((dnas[nest].antena1<<5) & 1) && x >=1 && y >=3)
+					pheromoneEsq += fields[nest][x-1][y-3];
+				if(((dnas[nest].antena2<<5) & 1) && x >=1 && y <97)
+					pheromoneDir += fields[nest][x-1][y+3];
+				if(((dnas[nest].antena1<<6) & 1) && x >=2 && y >=1)
+					pheromoneEsq += fields[nest][x-2][y-1];
+				if(((dnas[nest].antena2<<6) & 1) && x >=2 && y < 99)
+					pheromoneDir += fields[nest][x-2][y+1];
+				if(((dnas[nest].antena1<<7) & 1) && x >=2 && y >=2)
+					pheromoneEsq += fields[nest][x-2][y-2];
+				if(((dnas[nest].antena2<<7) & 1) && x >=2 && y <98)
+					pheromoneDir += fields[nest][x-2][y+2];
+
+				if(x > 0){
+					if(pheromoneEsq > pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
+						directions[nest][ant] = 0;
+					else if(pheromoneEsq < pheromoneDir && rand() % 101 > dnas[nest].ignoreChance)
 						directions[nest][ant] = 2;
-				}else
-					directions[nest][ant] = 1;
-			}
-		break;
+					nests[nest][ant][0] = x - 1;
+				}else{
+					if(rand() % 101 > dnas[nest].turnChance){
+						if(rand() % 2)
+							directions[nest][ant] = 0;
+						else
+							directions[nest][ant] = 2;
+					}else
+						directions[nest][ant] = 1;
+				}
+			break;
+		}
 	}
 }
 
@@ -333,36 +336,46 @@ void selection(){
 
 void reproduct(){
 	for(int i = 0; i < 12; i++){
+		int aux = rand() % 20;
 		if(i != best && canReproduct[i] && points[best][generation % MEMORY] > points[i][generation % MEMORY]){
-			dnas[i].pheromone += dnas[best].pheromone;
-			dnas[i].pheromone /=2;
-			dnas[i].max += dnas[best].max;
-			dnas[i].max /=2;
-			dnas[i].ignoreChance += dnas[best].ignoreChance;
-			dnas[i].ignoreChance /=2;
-			dnas[i].turnChance += dnas[best].turnChance;
-			dnas[i].turnChance /=2;
-			for(int j = 0; j < 8; j++){
-				if(((dnas[best].antena1 >> j) & 1) != ((dnas[i].antena1 >> j) & 1)){
-					dnas[i].antena1 ^= (rand() % 2)<<j;
-				}
-				if(((dnas[best].antena2 >> j) & 1) != ((dnas[i].antena2 >> j) & 1)){
-					dnas[i].antena2 ^= (rand() % 2)<<j;
-				}
+			if(evolveDna[1]){
+				dnas[i].pheromone += dnas[best].pheromone;
+				dnas[i].pheromone /=2;
+				if(aux == 19)
+					dnas[i].pheromone += (-(rand() % 2))*dnas[i].pheromone*mutation;
 			}
-			int aux = rand() % 20;
-			if(aux == 19){
-				dnas[i].pheromone += (-(rand() % 2))*dnas[i].pheromone*mutation;
-			}else if(aux == 18){
-				dnas[i].max += (-(rand() % 2))*dnas[i].max*mutation;
-			}else if(aux == 17){
-				dnas[i].ignoreChance += (-(rand() % 2))*dnas[i].ignoreChance*mutation;
-			}else if(aux == 16){
-				dnas[i].turnChance += (-(rand() % 2))*dnas[i].turnChance*mutation;
-			}else if(aux < 8){
-				dnas[i].antena1 ^= 1<<aux;
-			}else{
-				dnas[i].antena2 ^= 1<<(aux % 8);
+			if(evolveDna[2]){
+				dnas[i].max += dnas[best].max;
+				dnas[i].max /=2;
+				if(aux == 18)
+					dnas[i].max += (-(rand() % 2))*dnas[i].max*mutation;
+			}
+			if(evolveDna[3]){
+				dnas[i].ignoreChance += dnas[best].ignoreChance;
+				dnas[i].ignoreChance /=2;
+				if(aux == 17)
+					dnas[i].ignoreChance += (-(rand() % 2))*dnas[i].ignoreChance*mutation;
+			}
+			if(evolveDna[4]){
+				dnas[i].turnChance += dnas[best].turnChance;
+				dnas[i].turnChance /=2;
+				if(aux == 16)
+					dnas[i].turnChance += (-(rand() % 2))*dnas[i].turnChance*mutation;
+			}
+			if(evolveDna[0]){
+				for(int j = 0; j < 8; j++){
+					if(((dnas[best].antena1 >> j) & 1) != ((dnas[i].antena1 >> j) & 1)){
+						dnas[i].antena1 ^= (rand() % 2)<<j;
+					}
+					if(((dnas[best].antena2 >> j) & 1) != ((dnas[i].antena2 >> j) & 1)){
+						dnas[i].antena2 ^= (rand() % 2)<<j;
+					}
+				}
+				if(aux < 8){
+					dnas[i].antena1 ^= 1<<aux;
+				}else if(aux < 16){
+					dnas[i].antena2 ^= 1<<(aux % 8);
+				}
 			}
 		}
 	}
@@ -386,21 +399,79 @@ int main(int argc, char *argv[]){
 	pthread_mutex_init(&terminatedAcess,NULL);
 	int args[12] ={0,1,2,3,4,5,6,7,8,9,10,11};
 
-  printf("Commands:\ng-Activate/Deactivate Interface\np-Pause/Unpause\nq-Save And Exit\n");
+	if(argc == 1){
+	}else{
+		int i = 1;
+		struct dna aux;
+		while(i < argc){
+			char *string = argv[i++];
+			if(strcmp(string,"-i") == 0){
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				FILE *input = fopen(argv[i++],"r");
+				fscanf(input,"%hhu\n%hhu\n%hhu\n%hhu\n%hhu\n%hhu",&aux.pheromone,&aux.max,&aux.antena1,&aux.antena2,&aux.ignoreChance,&aux.turnChance);
+				fclose(input);
+			}else if(strcmp(string,"-ph") == 0){
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				aux.pheromone = atoi(argv[i++]) % 101;
+				evolveDna[1] = 0;
+			}else if(strcmp(string,"-mx") == 0){
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				aux.max = atoi(argv[i++]) % 255;
+				evolveDna[2] = 0;
+			}else if(strcmp(string,"-ig") == 0){
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				aux.ignoreChance = atoi(argv[i++]) % 101;
+				evolveDna[3] = 0;
+			}else if(strcmp(string,"-tn") == 0){
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				aux.turnChance = atoi(argv[i++]) % 101;
+				evolveDna[4] = 0;
+			}else if(strcmp(string,"-at") == 0){
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				aux.antena1 = atoi(argv[i++]) % 256;
+				if(i == argc){
+					i = -1;
+					break;
+				}
+				aux.antena2 = atoi(argv[i++]) % 256;
+				evolveDna[0] = 0;
+			}else{
+				i = -1;
+				break;
+			}
+		}
+		if(i == -1){
+			printf("Usage: ./prog [-i inputFile][-ph pheromone][-mx maximumPheromone][-ig ignoreChance][-tn turnChance][-at antena1 antena2]\n");
+			printf("The order of the flags matter.\n");
+			exit(0);
+		}
+		for(int j = 0; j < 12; j++)
+			dnas[j] = aux;
+	}
+	printf("Commands:\ng-Activate/Deactivate Interface\np-Pause/Unpause\nq-Save And Exit\n");
 	srand(time(NULL));
+	for(int i = 0; i < 12; i++)
+		initPop(i);
 
 	pthread_create(&ui,NULL,UI,argv);
-	if(argc == 1){
-  	for(int i = 0; i < 12; i++)
-			initPop(i);
-	}else{
-		FILE *input = fopen(argv[1],"r");
-		struct dna aux;
-		fscanf(input,"%hhu\n%hhu\n%hhu\n%hhu\n%hhu\n%hhu",&aux.pheromone,&aux.max,&aux.antena1,&aux.antena2,&aux.ignoreChance,&aux.turnChance);
-		for(int i = 0; i < 12; i++)
-			dnas[i] = aux;
-		fclose(input);
-	}
 	while(generation < 1000){
     for(int i = 0; i < 12; i++)
       pthread_create(&evaluation[i],NULL,evaluate,&args[i]);
