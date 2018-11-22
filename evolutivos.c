@@ -8,9 +8,10 @@
 #include"ui.c"
 
 #define MAX_WITHOUT_CHANGE 5
-#define MAX_TO_INVERT 20
-#define MUTATION 0.1
+#define MAX_TO_LOCAL 20
+#define MUTATION 0.25
 #define VELOCITY 10000
+#define RESTART_MUTATION 0.6
 
 struct dna{
 	unsigned char antena1;
@@ -320,6 +321,7 @@ void selection(){
 				best = i;
 				bestFit = fit;
 				generationsWithoutChange = 0;
+				mutation = MUTATION;
 			}
 			canReproduct[i] = 1;
 			if(fit == MEMORY*1000){
@@ -336,31 +338,45 @@ void selection(){
 
 void reproduct(){
 	for(int i = 0; i < 12; i++){
-		int aux = rand() % 20;
-		if(i != best && canReproduct[i] && points[best][generation % MEMORY] > points[i][generation % MEMORY]){
+		int aux;
+		int ok = 0;
+		while(!ok){
+			aux = rand() % 20;
+			if((aux == 19 && evolveDna[1]) || (aux == 18 && evolveDna[2]) || (aux == 17 && evolveDna[3]) || (aux == 16 && evolveDna[4]) || (aux < 16 && evolveDna[0]))
+				ok = 1;
+		}
+		if(i != best && canReproduct[i] && points[best][(generation-1) % MEMORY] >= points[i][(generation-1) % MEMORY]){
 			if(evolveDna[1]){
 				dnas[i].pheromone += dnas[best].pheromone;
 				dnas[i].pheromone /=2;
-				if(aux == 19)
+				if(aux == 19){
 					dnas[i].pheromone += (-(rand() % 2))*dnas[i].pheromone*mutation;
+					dnas[i].pheromone %= 101;
+				}
 			}
 			if(evolveDna[2]){
 				dnas[i].max += dnas[best].max;
 				dnas[i].max /=2;
-				if(aux == 18)
+				if(aux == 18){
 					dnas[i].max += (-(rand() % 2))*dnas[i].max*mutation;
+					dnas[i].max %= 255;
+				}
 			}
 			if(evolveDna[3]){
 				dnas[i].ignoreChance += dnas[best].ignoreChance;
 				dnas[i].ignoreChance /=2;
-				if(aux == 17)
+				if(aux == 17){
 					dnas[i].ignoreChance += (-(rand() % 2))*dnas[i].ignoreChance*mutation;
+					dnas[i].ignoreChance %= 101;
+				}
 			}
 			if(evolveDna[4]){
 				dnas[i].turnChance += dnas[best].turnChance;
 				dnas[i].turnChance /=2;
-				if(aux == 16)
+				if(aux == 16){
 					dnas[i].turnChance += (-(rand() % 2))*dnas[i].turnChance*mutation;
+					dnas[i].turnChance %= 101;
+				}
 			}
 			if(evolveDna[0]){
 				for(int j = 0; j < 8; j++){
@@ -397,10 +413,10 @@ int main(int argc, char *argv[]){
 	pthread_mutex_init(&paused,NULL);
 	pthread_mutex_init(&save_exit,NULL);
 	pthread_mutex_init(&terminatedAcess,NULL);
+	int initializePop = 1;
 	int args[12] ={0,1,2,3,4,5,6,7,8,9,10,11};
 
-	if(argc == 1){
-	}else{
+	if(argc > 1){
 		int i = 1;
 		struct dna aux;
 		while(i < argc){
@@ -413,6 +429,7 @@ int main(int argc, char *argv[]){
 				FILE *input = fopen(argv[i++],"r");
 				fscanf(input,"%hhu\n%hhu\n%hhu\n%hhu\n%hhu\n%hhu",&aux.pheromone,&aux.max,&aux.antena1,&aux.antena2,&aux.ignoreChance,&aux.turnChance);
 				fclose(input);
+				initializePop = 0;
 			}else if(strcmp(string,"-ph") == 0){
 				if(i == argc){
 					i = -1;
@@ -465,14 +482,21 @@ int main(int argc, char *argv[]){
 		}
 		for(int j = 0; j < 12; j++)
 			dnas[j] = aux;
+		mutation = RESTART_MUTATION;
+	}
+	printf("%d\n",evolveDna[1]);
+	if(!evolveDna[0] && !evolveDna[1] && !evolveDna[2] && !evolveDna[3] && !evolveDna[4]){
+		printf("Static Population\n");
+		exit(0);
 	}
 	printf("Commands:\ng-Activate/Deactivate Interface\np-Pause/Unpause\nq-Save And Exit\n");
 	srand(time(NULL));
-	for(int i = 0; i < 12; i++)
-		initPop(i);
+	if(initializePop)
+		for(int i = 0; i < 12; i++)
+			initPop(i);
 
 	pthread_create(&ui,NULL,UI,argv);
-	while(generation < 1000){
+	while(generationsWithoutChange != MAX_TO_LOCAL){
     for(int i = 0; i < 12; i++)
       pthread_create(&evaluation[i],NULL,evaluate,&args[i]);
     for(int i = 0; i < 12; i++)
@@ -488,13 +512,8 @@ int main(int argc, char *argv[]){
 		}
 		pthread_mutex_unlock(&save_exit);
 		generationsWithoutChange++;
-		if(generationsWithoutChange % MAX_WITHOUT_CHANGE == 0 && (mutation == 0.01f || mutation == 0.25f)){
-			invert = !invert;
-			mutation = MUTATION;
-		}else if(generationsWithoutChange % MAX_WITHOUT_CHANGE == 0){
-			if(invert && mutation < 1){
-				mutation += 0.05;
-			}else if(mutation > 0.05f){
+		if(generationsWithoutChange % MAX_WITHOUT_CHANGE == 0 && mutation != 0.01f){
+			if(mutation > 0.05f){
 				mutation -= 0.05;
 			}else{
 				mutation = 0.01;
