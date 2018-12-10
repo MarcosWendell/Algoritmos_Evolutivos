@@ -7,6 +7,7 @@ Cada um dos 12 ninhos gerará formigas que saem da posição inicial definida no
 Devido a presença de ruído armazena-se as notas obtidas pelos ninhos nas avaliações anteriores e utiliza-se a média das últimas notas para definir o melhor de todos. Para alterar a quantidade de últimas notas armazenadas pode-se alterar o valor para MEMORY definido no arquivo ui.c.
 
 As informações de todas as gerações são impressas no terminal assim como em um arquivo de saída denomindado output.txt. A cada 50 gerações é foraçada a escrita no arquivo de saída.
+
 ###Pré Requisitos
 Instalação da biblioteca:
  * [glut](https://www.opengl.org/resources/libraries/glut/)
@@ -15,6 +16,7 @@ Teclas com funções definidas quando a interface gráfica está aberta:
  * **g -** Ativar/Desativar Interface Gráfica;
  * **p -** Parar/Continuar Execução quando a próxima geração acabar;
  * **q -** Salvar e sair.
+ 
 ###Parâmetros Do Programa
 Parâmetros aceitos pelo programa:
  * **_-i inputFile_ :** nome do aquivo de entrada com os valores para iniciar a população;
