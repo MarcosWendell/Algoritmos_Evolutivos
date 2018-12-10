@@ -6,7 +6,7 @@ Cada um dos 12 ninhos gerará formigas que saem da posição inicial definida no
 
 Devido a presença de ruído armazena-se as notas obtidas pelos ninhos nas avaliações anteriores e utiliza-se a média das últimas notas para definir o melhor de todos. Para alterar a quantidade de últimas notas armazenadas pode-se alterar o valor para MEMORY definido no arquivo ui.c.
 
-As informações de todas as gerações são impressas no terminal assim como em um arquivo de saída denomindado output.txt. A cada 50 gerações é foraçada a escrita no arquivo de saída.
+As informações de todas as gerações são impressas no terminal assim como em um arquivo de saída denomindado output.txt. A cada 50 gerações é forçada a escrita no arquivo de saída.
 
 ### Pré Requisitos
 Instalação da biblioteca:
