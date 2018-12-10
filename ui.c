@@ -6,8 +6,15 @@
 
 #define	WINDOW_WIDTH 1205
 #define WINDOW_HEIGHT 550
-#define FPS 500
+#define MILISECONDS_GAP 500
 #define MEMORY 5
+#define PHEROMONE_COLOR 0,0,1
+#define START_COLOR 0.545,0.2705,0.0745
+#define END_COLOR 0.72,0.8353,0.1333
+#define ANT_COLOR 1,0,0
+#define BOARD_COLOR 0,0,0
+#define BACK_COLOR 1,1,1,1
+#define NUMBER_OF_ANTS 50
 
 pthread_t evaluation[12];
 int start[2] = {50,50};
@@ -21,12 +28,13 @@ char terminated[12];
 pthread_mutex_t paused,save_exit,terminatedAcess;
 
 int points[12][MEMORY];
-int nests[12][50][2];
-int directions[12][50];
+int nests[12][NUMBER_OF_ANTS][2];
+int directions[12][NUMBER_OF_ANTS];
 unsigned char fields[12][100][100];
 int generation = 1;
 
 void writeText(int x, int y, char*str, int n){
+	//positioning and writeing texts
 	for(int i = 0 ;i  < n; i++){
 		glRasterPos2f(x+10*i,y);
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
@@ -36,36 +44,38 @@ void writeText(int x, int y, char*str, int n){
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	//drawing boards
 	glBegin(GL_LINES);
 		glVertex2f(-600,225);
 		glVertex2f(605,225);
-		//comecar -23
+
 		glVertex2f(-600,179);
 		glVertex2f(605,179);
 
 		glVertex2f(-600,-25);
 		glVertex2f(605,-25);
-		//comecar -274
+
 		glVertex2f(-600,-72);
 		glVertex2f(605,-72);
-		//comecar -599
+
 		glVertex2f(-399,-275);
 		glVertex2f(-399,225);
-		//comecar -398
+
 		glVertex2f(-198,-275);
 		glVertex2f(-198,225);
-		//comecar -197
+
 		glVertex2f(3,-275);
 		glVertex2f(3,225);
-		//comecar 4
+
 		glVertex2f(204,-275);
 		glVertex2f(204,225);
-		//comecar 205
+
 		glVertex2f(405,-275);
 		glVertex2f(405,225);
-		//comecar 406
+
 	glEnd();
 
+	//writing texts
 	char texto1[] = {'g','e','r','a','c','a','o',':',' ','0'+((generation/100)%10),'0'+((generation/10)%10),'0'+ (generation % 10),'\0'};
 	char texto2[] = {'b','e','s','t',':',' ','0'+(((best+1)/10)%10),'0'+((best+1)%10),'\0'};
 	char fitness[] = {'f','i','t','n','e','s','s',':',' ','0','0','0','0','\0'};
@@ -146,8 +156,9 @@ void display(){
 	fitness[12] = '0'+(points[11][(generation - 1) % MEMORY] % 10);
 	writeText(416,-60,fitness,13);
 
+	//putting pheromone
 	glPointSize(2);
-	glColor3f(0,0,1);
+	glColor3f(PHEROMONE_COLOR);
 	glBegin(GL_POINTS);
 	for(int i = 0; i <100;i++){
 		for(int j = 0; j < 100;j++){
@@ -178,8 +189,9 @@ void display(){
 		}
 	}
 	glEnd();
+	//drawing start
 	glPointSize(3);
-	glColor3f(0.545,0.2705,0.0745);
+	glColor3f(START_COLOR);
 	glBegin(GL_POINTS);
 		glVertex2f(2*start[0]-599,2*start[1]-23);
 		glVertex2f(2*start[0]-398,2*start[1]-23);
@@ -194,7 +206,8 @@ void display(){
 		glVertex2f(2*start[0]+205,2*start[1]-274);
 		glVertex2f(2*start[0]+406,2*start[1]-274);
 	glEnd();
-	glColor3f(0.72,0.8353,0.1333);
+	//drawing end
+	glColor3f(END_COLOR);
 	glBegin(GL_POINTS);
 		glVertex2f(2*end[0]-599,2*end[1]-23);
 		glVertex2f(2*end[0]-398,2*end[1]-23);
@@ -210,10 +223,10 @@ void display(){
 		glVertex2f(2*end[0]+206,2*end[1]-274);
 
 	glEnd();
-
-	glColor3f(1,0,0);
+	//drawing ants
+	glColor3f(ANT_COLOR);
 	glBegin(GL_POINTS);
-		for(int i = 0; i < 50; i++){
+		for(int i = 0; i < NUMBER_OF_ANTS; i++){
 			glVertex2f(2*nests[0][i][0]-599,2*nests[0][i][1]-23);
 			glVertex2f(2*nests[1][i][0]-398,2*nests[1][i][1]-23);
 			glVertex2f(2*nests[2][i][0]-197,2*nests[2][i][1]-23);
@@ -229,29 +242,33 @@ void display(){
 		}
 	glEnd();
 
-	glColor3f(0,0,0);
+	glColor3f(BOARD_COLOR);
 
 	glFlush();
 }
 
 void draw(int value){
 	glutPostRedisplay();
+	//if active the interface is called again after some miliseconds
 	if(tf == 1)
-		glutTimerFunc(FPS,draw,0);
+		glutTimerFunc(MILISECONDS_GAP,draw,0);
 }
 
 void keyboard(unsigned char key, int x, int y){
 	if(key == 'g'){
+			//activate/deactivate interface
 			tf = !tf;
 			if(tf == 1)
-				glutTimerFunc(FPS,&draw,0);
+				glutTimerFunc(MILISECONDS_GAP,&draw,0);
 	}else if(key == 'p'){
+			//pause execution
 			p = !p;
 			if(p == 1)
 				pthread_mutex_lock(&paused);
 			else
 				pthread_mutex_unlock(&paused);
 	}else if(key == 'q'){
+		//quit application
 		pthread_mutex_lock(&save_exit);
 		for(int i = 0; i < 12; i++){
 			pthread_mutex_lock(&terminatedAcess);
@@ -264,16 +281,18 @@ void keyboard(unsigned char key, int x, int y){
 }
 
 void init(){
-	glClearColor(1,1,1,1);
+	//initializing frame
+	glClearColor(BACK_COLOR);
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(-600,605,-275,275);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(0,0,0);
+	glColor3f(BOARD_COLOR);
 	glPointSize(3);
 	glutPostRedisplay();
 }
 
 void *UI(void *arg){
+	//initializing glut library
 	glutInit(&counter,arg);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
@@ -285,7 +304,7 @@ void *UI(void *arg){
 	glutKeyboardFunc(keyboard);
 
 	init();
-	glutTimerFunc(FPS,&draw,0);
+	glutTimerFunc(MILISECONDS_GAP,&draw,0);
 	glutMainLoop();
 
 	return 0;

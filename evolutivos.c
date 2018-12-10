@@ -7,12 +7,15 @@
 #include<limits.h>
 #include"ui.c"
 
-#define MAX_WITHOUT_CHANGE 5
-#define MAX_TO_LOCAL 20
+#define GENERATION_TO_CHANGE_MUTATION 5
+#define GENERATIONS_TO_LOCAL_BEST 20
 #define MUTATION 0.25
 #define VELOCITY 10000
 #define RESTART_MUTATION 0.6
+#define PHEROMONE_MAX_INITIAL_VALUE 101
+#define MAX_PHEROMONE_MAX_INITIAL_VALUE 255
 
+//dna struct
 struct dna{
 	unsigned char antena1;
 	unsigned char antena2;
@@ -22,10 +25,8 @@ struct dna{
 	unsigned char turnChance;
 };
 
-#define TRUE 1
-
 struct dna dnas[12];
-int generationsWithoutChange = 0, invert = 0;
+int generationsWithoutChange = 0;
 float mutation = MUTATION;
 char canReproduct[12];
 char evolveDna[5] = {1,1,1,1,1};
@@ -34,14 +35,15 @@ struct dna theBestDna;
 int theBest = INT_MAX;
 
 void initPop(int id){
+	//initializing population
 	if(evolveDna[0]){
 		dnas[id].antena1 = rand() % 256;
 		dnas[id].antena2 = rand() % 256;
 	}
 	if(evolveDna[1])
-		dnas[id].pheromone = rand() % 101;
+		dnas[id].pheromone = rand() % PHEROMONE_MAX_INITIAL_VALUE;
 	if(evolveDna[2])
-		dnas[id].max = rand() % 255;
+		dnas[id].max = rand() % MAX_PHEROMONE_MAX_INITIAL_VALUE;
 	if(evolveDna[3])
 		dnas[id].ignoreChance = rand() % 101;
 	if(evolveDna[4])
@@ -49,6 +51,7 @@ void initPop(int id){
 }
 
 void walk(int nest, int ant){
+	//moving ants of a nest
 	int pheromoneEsq = 0, pheromoneDir = 0,x =nests[nest][ant][0] ,y =nests[nest][ant][1];
 	int aux = fields[nest][x][y];
 	aux += dnas[nest].pheromone;
@@ -270,13 +273,14 @@ void walk(int nest, int ant){
 }
 
 void *evaluate(void *arg){
+	//evaluation function
 	int fitness = 0;
 	int id = ((int*)arg)[0];
 	pthread_mutex_lock(&terminatedAcess);
 	terminated[id] = 0;
 	pthread_mutex_unlock(&terminatedAcess);
 	char not_reach = 1;
-	for(int i = 0; i< 50; i++){
+	for(int i = 0; i< NUMBER_OF_ANTS; i++){
 		directions[id][i] = rand() % 4;
 		nests[id][i][0] = start[0];
 		nests[id][i][1] = start[1];
@@ -285,7 +289,7 @@ void *evaluate(void *arg){
 		for(int j= 0; j < 100; j++)
 			fields[id][i][j] = 0;
 	while(not_reach){
-		for(int i=0; i< 50; i++){
+		for(int i=0; i< NUMBER_OF_ANTS; i++){
 			walk(id,i);
 			if(nests[id][i][0] == end[0] && nests[id][i][1] == end[1])
 				not_reach = 0;
@@ -309,6 +313,7 @@ void *evaluate(void *arg){
 }
 
 void selection(){
+	//selection function
 	int bestFit = 0;
 	for(int i = 0; i < MEMORY; i++)
 		bestFit += points[best][i];
@@ -337,6 +342,7 @@ void selection(){
 }
 
 void reproduct(){
+	//reproduction function
 	for(int i = 0; i < 12; i++){
 		int aux;
 		int ok = 0;
@@ -398,6 +404,7 @@ void reproduct(){
 }
 
 void printOutput(FILE * file){
+	//printing genereations in terminal and output file
 	fprintf(file,"Generation: %d\tMutation: %lf\nBest: %d\n",generation,mutation,best+1);
 	printf("Generation: %d\tMutation: %lf\tGenerations: %d\nBest: %d\n",generation,mutation,generationsWithoutChange,best+1);
 	for(int i = 0; i< 12; i++){
@@ -416,6 +423,7 @@ int main(int argc, char *argv[]){
 	int initializePop = 1;
 	int args[12] ={0,1,2,3,4,5,6,7,8,9,10,11};
 
+	//reading program paramters
 	if(argc > 1){
 		int i = 1;
 		struct dna aux;
@@ -435,14 +443,14 @@ int main(int argc, char *argv[]){
 					i = -1;
 					break;
 				}
-				aux.pheromone = atoi(argv[i++]) % 101;
+				aux.pheromone = atoi(argv[i++]) % PHEROMONE_MAX_INITIAL_VALUE;
 				evolveDna[1] = 0;
 			}else if(strcmp(string,"-mx") == 0){
 				if(i == argc){
 					i = -1;
 					break;
 				}
-				aux.max = atoi(argv[i++]) % 255;
+				aux.max = atoi(argv[i++]) % MAX_PHEROMONE_MAX_INITIAL_VALUE;
 				evolveDna[2] = 0;
 			}else if(strcmp(string,"-ig") == 0){
 				if(i == argc){
@@ -484,7 +492,6 @@ int main(int argc, char *argv[]){
 			dnas[j] = aux;
 		mutation = RESTART_MUTATION;
 	}
-	printf("%d\n",evolveDna[1]);
 	if(!evolveDna[0] && !evolveDna[1] && !evolveDna[2] && !evolveDna[3] && !evolveDna[4]){
 		printf("Static Population\n");
 		exit(0);
@@ -495,8 +502,9 @@ int main(int argc, char *argv[]){
 		for(int i = 0; i < 12; i++)
 			initPop(i);
 
+	//running algorithm
 	pthread_create(&ui,NULL,UI,argv);
-	while(generationsWithoutChange != MAX_TO_LOCAL){
+	while(generationsWithoutChange != GENERATIONS_TO_LOCAL_BEST){
     for(int i = 0; i < 12; i++)
       pthread_create(&evaluation[i],NULL,evaluate,&args[i]);
     for(int i = 0; i < 12; i++)
@@ -512,7 +520,7 @@ int main(int argc, char *argv[]){
 		}
 		pthread_mutex_unlock(&save_exit);
 		generationsWithoutChange++;
-		if(generationsWithoutChange % MAX_WITHOUT_CHANGE == 0 && mutation != 0.01f){
+		if(generationsWithoutChange % GENERATION_TO_CHANGE_MUTATION == 0 && mutation != 0.01f){
 			if(mutation > 0.05f){
 				mutation -= 0.05;
 			}else{
@@ -520,8 +528,11 @@ int main(int argc, char *argv[]){
 			}
 		}
     generation++;
+		if(generation % 50 == 0)
+			fflush(file);
 	}
 
+	//ending program
 	fprintf(file,"\nThe Best:\tpheromone: %d\t max: %d\tantena1: %d\tantena2: %d\tignore: %d\tturn: %d\tfitness: %d\n",theBestDna.pheromone,theBestDna.max,theBestDna.antena1,theBestDna.antena2,theBestDna.ignoreChance,theBestDna.turnChance,theBest);
 	printf("\nThe Best:\tpheromone: %d\t max: %d\tantena1: %d\tantena2: %d\tignore: %d\tturn: %d\tfitness: %d\n",theBestDna.pheromone,theBestDna.max,theBestDna.antena1,theBestDna.antena2,theBestDna.ignoreChance,theBestDna.turnChance,theBest);
   fclose(file);
