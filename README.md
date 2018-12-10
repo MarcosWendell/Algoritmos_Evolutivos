@@ -8,16 +8,16 @@ Devido a presença de ruído armazena-se as notas obtidas pelos ninhos nas avali
 
 As informações de todas as gerações são impressas no terminal assim como em um arquivo de saída denomindado output.txt. A cada 50 gerações é foraçada a escrita no arquivo de saída.
 
-###Pré Requisitos
+### Pré Requisitos
 Instalação da biblioteca:
  * [glut](https://www.opengl.org/resources/libraries/glut/)
-###Comandos Da Interface Gráfica
+### Comandos Da Interface Gráfica
 Teclas com funções definidas quando a interface gráfica está aberta:
  * **g -** Ativar/Desativar Interface Gráfica;
  * **p -** Parar/Continuar Execução quando a próxima geração acabar;
  * **q -** Salvar e sair.
- 
-###Parâmetros Do Programa
+
+### Parâmetros Do Programa
 Parâmetros aceitos pelo programa:
  * **_-i inputFile_ :** nome do aquivo de entrada com os valores para iniciar a população;
  * **_-ph pheromone_ :** quantidade de feromônio dos ninhos, se utilizado não evolui esse gene;
@@ -27,5 +27,5 @@ Parâmetros aceitos pelo programa:
  * **_-at antena1 antena2_ :** formato das antenas valores de 0 a 255, se utilizado não evolui esse gene.
 
  A ordem em que os parâmetros são utilizados influencia na inicialização dos ninhos. Caso o arquivo de entrada seja passado após os outros parâmetros vale o valor no arquivo. Caso os parâmetros sejam passados após o arquivo, os valores defindos nos parâmetros sobrepõe os valores do arquivo. Passar o arquivo como parâmetro não influecia genes podem evoluir.
-###Formato Do Arquivo De entrada
+### Formato Do Arquivo De entrada
 Assim como no arquivo de modelo cada valor deve estar em uma linha, os valores são na seguinte ordem: feromônio,quantidade máxima de feromônio, antena 1, antena 2, chance de ignorar, chance de virar.
