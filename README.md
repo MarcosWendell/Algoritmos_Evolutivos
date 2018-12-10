@@ -1,7 +1,7 @@
 # Ant Collony
 ## Trabalho da disciplina SSC0713 - Sistemas Evolutivos e Aplicados à Robótica
 Implementação de um algoritmo de Inteligêcia de Enxame e algoritmo Evolutivo
-###Descrição
+### Descrição
 Cada um dos 12 ninhos gerará formigas que saem da posição inicial definida no arquivo ui.c com o objetivo de chegar à posição final definida no arquivo ui.c. O número de formigas é definido no arquivo ui.c.
 
 Devido a presença de ruído armazena-se as notas obtidas pelos ninhos nas avaliações anteriores e utiliza-se a média das últimas notas para definir o melhor de todos. Para alterar a quantidade de últimas notas armazenadas pode-se alterar o valor para MEMORY definido no arquivo ui.c.
